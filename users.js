@@ -1,50 +1,28 @@
 const express = require("express");
-const app = express();
 const router = express.Router();
-const dbUtil = require("./db");
+const db = require("./db");
 
 router.get("/", function(req, res) {
-  dbUtil
-    .getDB()
-    .collection("employee")
-    .find({name:'jayanth'})
-    .toArray((err, response) => {
-      if (err) res.send(err);
-      res.send(response);
-    });
+  db.query("select * from users", function(err, results) {
+    if (err) {
+      throw err;
+    }
+    res.send(results);
+  });
 });
 
-router.get("/addUser", function(req, res) {
-  dbUtil
-    .getDB()
-    .collection("employee")
-    .insertMany(
-      [
-        {
-          name: "jayanth",
-          mobile: "123456789",
-          email: "abc@gmail.com"
-        },
-        {
-          name: "xxx",
-          mobile: "123456789",
-          email: "abc@gmail.com"
-        },
-        {
-          name: "yyy",
-          mobile: "123456789",
-          email: "abc@gmail.com"
-        },
-        {
-          name: "zzz",
-          mobile: "123456789",
-          email: "abc@gmail.com"
-        }
-      ],
-      (err,result) => {
-        res.send(result);
-      }
-    );
+router.get("/task/:id", function(req, res) {
+  console.log(req.params.id);
+  const query1 =
+     "select users.name as Name,users.emailId as Email , \
+     tasks.task as Task from \
+     tasks  INNER  JOIN users ON tasks.userId =  users.userId where tasks.managedBy = ?"
+  db.query(query1,[req.params.id,req.params.id], function(err, results) {
+    if (err) throw err;
+    res.send(results);
+  });
 });
+
+router.get("/addUser", function(req, res) {});
 
 module.exports = router;

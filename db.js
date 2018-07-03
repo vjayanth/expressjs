@@ -1,18 +1,14 @@
-var MongoClient = require("mongodb").MongoClient;
-var db;
+var mysql = require('mysql')
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : '<password.',
+  database : 'todo'
+});
 
-module.exports = {
-  connectToServer(callback) {
-    MongoClient.connect(
-      "<dburl>",
-      function(err, database) {
-        if (err) throw err;
-        db = database.db('<dbname>');
-        callback(err);
-      }
-    );
-  },
-  getDB() {
-    return db;
-  }
-};
+connection.connect(function(err){
+  if (err) throw err;
+})
+
+module.exports = connection;
+

@@ -1,8 +1,11 @@
 const express = require("express");
 const app = express();
+const bodyParser = require('body-parser');
 const tasks = require("./tasks");
 const users = require("./users");
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/tasks", tasks);
 app.use("/users", users);
 app.get("/", (req, res) => {

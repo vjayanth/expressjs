@@ -1,38 +1,63 @@
 const express = require("express");
-const app = express();
 const router = express.Router();
 const db = require("./db");
 
-router.get("/", async function(req, res) {
-  const a = 2;
-
-  const b = await doA(a);
-  console.log(b);
-
-  const c = await doB(b);
-  console.log(c);
-
-  const d = await doC(c);
-
-  res.send({ value: d });
+router.get("/", function(req, res) {
+  db.query("select * from tasks", function(err, results) {
+    if (err) {
+      throw err;
+    }
+    res.send(results);
+  });
 });
 
-function doA(a) {
+router.post("/addTask", async function(req, res) {
+  if (!req.body.userId && !req.body.managedBy) {
+    const userId = await addUser({
+      name: req.body.name,
+      emailId: req.body.emailId
+    });
+    const resMsg = await addTask({
+      userId: userId,
+      task: req.body.task,
+      managedBy: userId
+    });
+    res.send(resMsg);
+  } else {
+    const taskBody = {
+      task: req.body.task
+    };
+    if (req.body.managedBy && req.body.userId) {
+      taskBody.userId = req.body.userId;
+      taskBody.managedBy = req.body.managedBy;
+    } else if (req.body.userId) {
+      taskBody.userId = req.body.userId;
+      taskBody.managedBy = req.body.userId;
+    }
+    const task = await addTask(taskBody);
+    res.send(task);
+  }
+});
+
+function addUser(body) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(a * a), 100);
+    db.query("INSERT INTO users SET ? ", body, function(err, result) {
+      if (err) {
+        console.log(err);
+      }
+      resolve(result.insertId);
+    });
   });
 }
 
-function doB(b) {
+function addTask(body) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(b * b), 100);
+    db.query("INSERT INTO tasks SET ? ", body, function(err, result) {
+      if (err) {
+        console.log(err);
+      }
+      resolve({ msg: "create successfully", taskId: result.insertId });
+    });
   });
 }
-
-function doC(c) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(c * c), 100);
-  });
-}
-
 module.exports = router;
