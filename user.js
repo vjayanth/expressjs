@@ -45,7 +45,7 @@ router.post("/login", async function(req, res) {
       };
       console.log(payload);
       const token = jwt.sign(payload, "firstApplication", {
-        expiresIn: 5
+        expiresIn: 60*60
       });
 
       res.send({ msg: "User Authentication Successful", token: token });
